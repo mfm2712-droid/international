@@ -553,7 +553,7 @@ function setupCalorieQr(){
 
 function setupQrCode(){
   isLocalFile = window.location.protocol === 'file:';
-  const url = isLocalFile ? FALLBACK_QR_URL : window.location.href;
+  const url = isLocalFile ? FALLBACK_QR_URL : (window.location.origin + window.location.pathname + '?campaign=qr-tarjeta');
   new QRCode(document.getElementById('qrcode-container'), {
     text: url, width: 160, height: 160,
     colorDark: '#181410', colorLight: '#FBF8F2', correctLevel: QRCode.CorrectLevel.H
