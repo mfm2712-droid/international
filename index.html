@@ -561,10 +561,27 @@ function setupQrCode(){
   document.getElementById('qrUrlText').textContent = url;
   updateLocalNote();
   document.getElementById('downloadQrBtn').addEventListener('click', ()=>{
-    const container = document.getElementById('qrcode-container');
-    const canvas = container.querySelector('canvas');
-    const imgEl = container.querySelector('img');
-    const dataUrl = canvas ? canvas.toDataURL('image/png') : (imgEl ? imgEl.src : null);
+    /* High-resolution export for printing: 1200px code + 100px white quiet zone each side */
+    const SIZE = 1200, MARGIN = 100;
+    const tmp = document.createElement('div');
+    tmp.style.cssText = 'position:fixed;left:-99999px;top:0;';
+    document.body.appendChild(tmp);
+    new QRCode(tmp, {
+      text: url, width: SIZE, height: SIZE,
+      colorDark: '#000000', colorLight: '#FFFFFF', correctLevel: QRCode.CorrectLevel.H
+    });
+    const src = tmp.querySelector('canvas');
+    let dataUrl = null;
+    if(src){
+      const out = document.createElement('canvas');
+      out.width = out.height = SIZE + MARGIN*2;
+      const ctx = out.getContext('2d');
+      ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0,0,out.width,out.height);
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(src, MARGIN, MARGIN, SIZE, SIZE);
+      dataUrl = out.toDataURL('image/png');
+    }
+    tmp.remove();
     if(!dataUrl) return;
     const a = document.createElement('a');
     a.href = dataUrl; a.download = 'franco-manca-menu-qr.png';
