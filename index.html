@@ -120,8 +120,10 @@ html[dir="rtl"] .wf-badge{margin-left:0;margin-right:8px;}
 .callout{display:inline-block;color:var(--red);font-size:12.5px;transform:rotate(-2deg);margin:2px 0 10px;
   border:1.5px dashed var(--red);border-radius:9999px;padding:5px 12px;}
 
-.stamp-wrap{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:12px 22px;margin:16px 0 22px;}
-.cashless{color:var(--red);font-size:24px;line-height:1.1;max-width:210px;transform:rotate(-2deg);}
+.stamp-wrap{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:12px 26px;margin:16px 0 22px;}
+.cashless{position:relative;isolation:isolate;color:var(--red);font-size:26px;line-height:1.1;max-width:200px;text-align:center;padding:14px 20px;margin-inline-start:10px;transform:rotate(-2deg);
+  background:var(--red);clip-path:polygon(0.00% 0,7.14% 6px,14.29% 0,21.43% 6px,28.57% 0,35.71% 6px,42.86% 0,50.00% 6px,57.14% 0,64.29% 6px,71.43% 0,78.57% 6px,85.71% 0,92.86% 6px,100.00% 0,calc(100% - 6px) 25.00%,calc(100% - 0px) 50.00%,calc(100% - 6px) 75.00%,calc(100% - 0px) 100.00%,92.86% calc(100% - 6px),85.71% calc(100% - 0px),78.57% calc(100% - 6px),71.43% calc(100% - 0px),64.29% calc(100% - 6px),57.14% calc(100% - 0px),50.00% calc(100% - 6px),42.86% calc(100% - 0px),35.71% calc(100% - 6px),28.57% calc(100% - 0px),21.43% calc(100% - 6px),14.29% calc(100% - 0px),7.14% calc(100% - 6px),0.00% calc(100% - 0px),6px 75.00%,0px 50.00%,6px 25.00%);}
+.cashless::before{content:'';position:absolute;inset:3px;z-index:-1;background:var(--paper);clip-path:polygon(0.00% 0,7.14% 6px,14.29% 0,21.43% 6px,28.57% 0,35.71% 6px,42.86% 0,50.00% 6px,57.14% 0,64.29% 6px,71.43% 0,78.57% 6px,85.71% 0,92.86% 6px,100.00% 0,calc(100% - 6px) 25.00%,calc(100% - 0px) 50.00%,calc(100% - 6px) 75.00%,calc(100% - 0px) 100.00%,92.86% calc(100% - 6px),85.71% calc(100% - 0px),78.57% calc(100% - 6px),71.43% calc(100% - 0px),64.29% calc(100% - 6px),57.14% calc(100% - 0px),50.00% calc(100% - 6px),42.86% calc(100% - 0px),35.71% calc(100% - 6px),28.57% calc(100% - 0px),21.43% calc(100% - 6px),14.29% calc(100% - 0px),7.14% calc(100% - 6px),0.00% calc(100% - 0px),6px 75.00%,0px 50.00%,6px 25.00%);}
 .stamp-circle{
   width:126px;height:126px;flex-shrink:0;
   border-radius:44% 56% 53% 47% / 48% 44% 56% 52%;
