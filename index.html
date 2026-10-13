@@ -279,7 +279,94 @@ html[dir="rtl"] .wf-badge{margin-left:0;margin-right:8px;}
 :focus-visible{outline:2px solid var(--red-dark);outline-offset:2px;}
 
 </style>
-<script data-goatcounter="https://fminternational.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+<script>
+/* FM-ANALYTICS-START
+   Two separate GoatCounter sites (no cookies, no identifiers):
+   1. VISITOR SITE (fminternational): the SAME GoatCounter script, endpoint and automatic pageview as
+      before, so pageviews, locations, devices and ?campaign=qr-tarjeta attribution are unchanged.
+      Only the decision whether to load it is new. Nothing but the automatic pageview is sent here.
+   2. LANGUAGE SITE (LANG_ENDPOINT): receives ONLY the language events, as GoatCounter's documented
+      /count pixel request (no script, no pageviews, no page URL or query string). Empty = disabled.
+   - Tracks only on the production host. Never on localhost, previews, file:, or automated browsers.
+   - Admin opt-out (this browser only): open the menu with ?analytics=off to stop being counted,
+     ?analytics=on to resume. Stored as one localStorage flag; it is not an identifier.
+   - ?analytics=force enables tracking for that page load on a NON-production host only (testing).
+     On the production host it is ignored and the normal production rules apply.
+   - Console helper: fmAnalytics.status() shows whether tracking is on and why. */
+(function(){
+  var ENDPOINT = 'https://fminternational.goatcounter.com/count';
+  var SRC = '//gc.zgo.at/count.js';
+  var LANG_ENDPOINT = 'https://fminternational-lang.goatcounter.com/count';   /* language-only site; must differ from ENDPOINT */
+  var PROD_HOSTS = ['fminternational.online', 'www.fminternational.online'];
+  var OPTOUT_KEY = 'fm-analytics-optout';
+  var enabled = false, reason = 'not-initialised';
+  var firstSelectionDone = false;
+
+  function readParam(){
+    try { return new URLSearchParams(window.location.search).get('analytics'); } catch(e){ return null; }
+  }
+  function storeGet(){ try { return window.localStorage.getItem(OPTOUT_KEY) === '1'; } catch(e){ return false; } }
+  function storeSet(on){
+    try { if(on) window.localStorage.setItem(OPTOUT_KEY, '1'); else window.localStorage.removeItem(OPTOUT_KEY); } catch(e){}
+  }
+
+  function decide(){
+    var p = readParam();
+    if(p === 'off') storeSet(true);
+    else if(p === 'on') storeSet(false);
+    if(storeGet()) return { on:false, reason:'admin-opt-out' };
+    var onProd = PROD_HOSTS.indexOf(window.location.hostname) !== -1;
+    if(p === 'force' && !onProd) return { on:true, reason:'forced', allowLocal:true };
+    var proto = window.location.protocol;
+    if(proto !== 'https:' && proto !== 'http:') return { on:false, reason:'not-http' };
+    if(!onProd) return { on:false, reason:'non-production-host' };
+    if(window.navigator && window.navigator.webdriver) return { on:false, reason:'automated-browser' };
+    return { on:true, reason:'production' };
+  }
+
+  /* One event = one GET to the language site's /count endpoint (p = event name, e = event, ns = no session,
+     rnd = cache buster). No page URL, query string, referrer or other data is added. Fire and forget. */
+  function sendLanguageEvent(name){
+    if(!enabled || !LANG_ENDPOINT) return false;
+    try {
+      var img = new window.Image(1, 1);
+      img.referrerPolicy = 'no-referrer';
+      img.src = LANG_ENDPOINT + '?p=' + encodeURIComponent(name) + '&t=' + encodeURIComponent(name) +
+                '&e=1&ns=1&rnd=' + Math.random().toString(36).slice(2);
+      return true;
+    } catch(e){ return false; }
+  }
+
+  try {
+    var d = decide();
+    enabled = d.on; reason = d.reason;
+    if(enabled){
+      if(d.allowLocal){ window.goatcounter = window.goatcounter || {}; window.goatcounter.allow_local = true; }
+      var s = document.createElement('script');
+      s.async = true;
+      s.setAttribute('data-goatcounter', ENDPOINT);
+      s.src = SRC;
+      (document.head || document.documentElement).appendChild(s);
+    }
+  } catch(e){ enabled = false; reason = 'init-error'; }
+
+  window.fmAnalytics = {
+    /* prev = language shown before the click, next = clicked language, known = next is a defined menu language.
+       Clicking the language that is already shown is not a switch and is never reported (so tapping the
+       default English chip is not counted as a selection). The first genuine switch on a page load is
+       language-selected-<code>; every later genuine switch is language-changed-<code>. */
+    languageClicked: function(prev, next, known){
+      if(!known || next === prev) return null;
+      var name;
+      if(!firstSelectionDone){ firstSelectionDone = true; name = 'language-selected-' + next; }
+      else { name = 'language-changed-' + next; }
+      return sendLanguageEvent(name) ? name : null;
+    },
+    status: function(){ return { enabled:enabled, reason:reason, languageSite:!!LANG_ENDPOINT }; }
+  };
+})();
+/* FM-ANALYTICS-END */
+</script>
 </head>
 <body>
 
@@ -613,7 +700,11 @@ function buildLangRow(){
         </button>`).join('')}</div>
     </div>`).join('');
   row.querySelectorAll('.lang-chip').forEach(btn=>{
-    btn.addEventListener('click', ()=>setLanguage(btn.getAttribute('data-lang')));
+    btn.addEventListener('click', ()=>{
+      const next = btn.getAttribute('data-lang');
+      try{ if(window.fmAnalytics) window.fmAnalytics.languageClicked(currentLang, next, LANGUAGES.some(l=>l.code===next) && !!TRANSLATIONS[next]); }catch(e){}
+      setLanguage(next);
+    });
   });
 }
 
